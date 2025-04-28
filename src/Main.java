@@ -11,7 +11,7 @@ public class Main {
     public static void main(String[] args) {
         homescreen();
     }
-
+//home screen
     static void homescreen() {
         while (true) {
             System.out.println("\n=== Online Store ===");

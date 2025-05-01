@@ -322,7 +322,7 @@ public class Main {
 
     static Date getEndOfPreviousMonth() {
         Date start = getStartOfCurrentMonth();
-        return new Date(start.getTime() - 24 * 60 * 60 * 1000); // 1 day before current month start
+        return new Date(start.getTime() - 24 * 60 * 60 * 1000); // 1 day before current month starts
     }
 
     static Date getStartOfCurrentYear() {

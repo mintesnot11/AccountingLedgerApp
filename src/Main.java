@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Scanner;
+import java.util.LinkedHashMap;
 
 public class Main {
     static Scanner scanner = new Scanner(System.in);
@@ -16,32 +17,12 @@ public class Main {
 
     //home screen
     static void homescreen() {
-        while (true) {
-            System.out.println("\n=== Online Store ===");
-            System.out.println("D. Add Deposit");
-            System.out.println("P. Make Payment (Debit)");
-            System.out.println("L. Ledger");
-            System.out.println("X. Exit");
-            System.out.print("Enter your choice: ");
-            String choice = scanner.nextLine().trim().toUpperCase();
-
-            switch (choice) {
-                case "D":
-                    addDeposit();
-                    break;
-                case "P":
-                    makePayment();
-                    break;
-                case "L":
-                    ledgerHomescreen();
-                    break;
-                case "X":
-                    System.out.println("Thanks for visiting!");
-                    return;
-                default:
-                    System.out.println("Invalid option. Try again.");
-            }
-        }
+        LinkedHashMap<String, Menu.MenuOption> options = new LinkedHashMap<>();
+        options.put("D", new Menu.MenuOption("Add Deposit", () -> { addDeposit(); return false; }));
+        options.put("P", new Menu.MenuOption("Make Payment (Debit)", () -> { makePayment(); return false; }));
+        options.put("L", new Menu.MenuOption("Ledger", () -> { ledgerHomescreen(); return false; }));
+        options.put("X", new Menu.MenuOption("Exit", () -> { System.out.println("Thanks for visiting!"); return true; }));
+        Menu.display("Online Store", options);
     }
 
     static void addDeposit() {
@@ -96,212 +77,24 @@ public class Main {
     }
 
     static void ledgerHomescreen() {
-        while (true) {
-            System.out.println("\n=== Ledger Home ===");
-            System.out.println("A. Show all Entries");
-            System.out.println("D. Deposits");
-            System.out.println("P. Payments");
-            System.out.println("R. Reports");
-            System.out.println("H. Back");
-            System.out.print("Enter your choice: ");
-            String choice = scanner.nextLine().trim().toUpperCase();
-
-            switch (choice) {
-                case "A":
-                    allLedger();
-                    break;
-                case "D":
-                    depositsledger();
-                    break;
-                case "P":
-                    paymentsLedger();
-                    break;
-                case "R":
-                    reportsLedger();
-                    break;
-                case "H":
-                    return; // Exit ledger menu
-                default:
-                    System.out.println("Invalid option. Try again.");
-            }
-        }
-    }
-
-    static void allLedger() {
-        System.out.println("\n--- All Ledger Entries (Deposits + Payments) ---");
-
-        File file = new File(fileName);
-
-        if (!file.exists()) {
-            System.out.println("No transactions found. File does not exist.");
-            return;
-        }
-
-        try (Scanner fileScanner = new Scanner(file)) {
-            boolean hasEntries = false;
-
-            while (fileScanner.hasNextLine()) {
-                String line = fileScanner.nextLine();
-                String[] parts = line.split("\\|");
-
-                if (parts.length == 5) {
-                    String date = parts[0];
-                    String time = parts[1];
-                    String description = parts[2];
-                    String vendor = parts[3];
-                    double amount = Double.parseDouble(parts[4]);
-
-                    System.out.println("Date       : " + date);
-                    System.out.println("Time       : " + time);
-                    System.out.println("Description: " + description);
-                    System.out.println("Vendor     : " + vendor);
-                    System.out.printf("Amount     : $%.2f (%s)\n", amount, amount >= 0 ? "Deposit" : "Payment");
-                    System.out.println("---------------------------");
-
-                    hasEntries = true;
-                }
-            }
-
-            if (!hasEntries) {
-                System.out.println("No entries found in the ledger.");
-            }
-
-        } catch (FileNotFoundException | NumberFormatException e) {
-            System.out.println("Error reading file: " + e.getMessage());
-        }
-    }
-
-    static void depositsledger() {
-        System.out.println("\n--- Deposits Only ---");
-
-        File file = new File(fileName);
-
-        if (!file.exists()) {
-            System.out.println("No transactions found. File does not exist.");
-            return;
-        }
-
-        try (Scanner fileScanner = new Scanner(file)) {
-            boolean hasDeposits = false;
-
-            while (fileScanner.hasNextLine()) {
-                String line = fileScanner.nextLine();
-                String[] parts = line.split("\\|");
-
-                if (parts.length == 5) {
-                    double amount = Double.parseDouble(parts[4]);
-
-                    if (amount > 0) { // Only show deposits
-                        String date = parts[0];
-                        String time = parts[1];
-                        String description = parts[2];
-                        String vendor = parts[3];
-
-                        System.out.println("Date       : " + date);
-                        System.out.println("Time       : " + time);
-                        System.out.println("Description: " + description);
-                        System.out.println("Vendor     : " + vendor);
-                        System.out.printf("Amount     : $%.2f\n", amount);
-                        System.out.println("---------------------------");
-
-                        hasDeposits = true;
-                    }
-                }
-            }
-
-            if (!hasDeposits) {
-                System.out.println("No deposit entries found.");
-            }
-
-        } catch (FileNotFoundException | NumberFormatException e) {
-            System.out.println("Error reading file: " + e.getMessage());
-        }
-    }
-
-    static void paymentsLedger() {
-        System.out.println("\n--- Payments Only ---");
-
-        File file = new File(fileName);
-
-        if (!file.exists()) {
-            System.out.println("No transactions found. File does not exist.");
-            return;
-        }
-
-        try (Scanner fileScanner = new Scanner(file)) {
-            boolean hasPayments = false;
-
-            while (fileScanner.hasNextLine()) {
-                String line = fileScanner.nextLine();
-                String[] parts = line.split("\\|");
-
-                if (parts.length == 5) {
-                    double amount = Double.parseDouble(parts[4]);
-
-                    if (amount < 0) { // Only show payments
-                        String date = parts[0];
-                        String time = parts[1];
-                        String description = parts[2];
-                        String vendor = parts[3];
-
-                        System.out.println("Date       : " + date);
-                        System.out.println("Time       : " + time);
-                        System.out.println("Description: " + description);
-                        System.out.println("Vendor     : " + vendor);
-                        System.out.printf("Amount     : $%.2f\n", amount);
-                        System.out.println("---------------------------");
-
-                        hasPayments = true;
-                    }
-                }
-            }
-
-            if (!hasPayments) {
-                System.out.println("No payment entries found.");
-            }
-
-        } catch (FileNotFoundException | NumberFormatException e) {
-            System.out.println("Error reading file: " + e.getMessage());
-        }
+        LinkedHashMap<String, Menu.MenuOption> options = new LinkedHashMap<>();
+        options.put("A", new Menu.MenuOption("Show all Entries", () -> { Ledger.showAll(); return false; }));
+        options.put("D", new Menu.MenuOption("Deposits", () -> { Ledger.showDeposits(); return false; }));
+        options.put("P", new Menu.MenuOption("Payments", () -> { Ledger.showPayments(); return false; }));
+        options.put("R", new Menu.MenuOption("Reports", () -> { reportsLedger(); return false; }));
+        options.put("H", new Menu.MenuOption("Back", () -> true));
+        Menu.display("Ledger Home", options);
     }
 
     static void reportsLedger() {
-        while (true) {
-            System.out.println("\n==== Reports Menu ====");
-            System.out.println("1) Month to Date");
-            System.out.println("2) Previous Month");
-            System.out.println("3) Year to Date");
-            System.out.println("4) Previous Year");
-            System.out.println("5) Search by Vendor");
-            System.out.println("0) Back - return to Ledger Menu");
-            System.out.print("Choose an option: ");
-
-            String input = scanner.nextLine().trim().toUpperCase();
-
-            switch (input) {
-                case "1":
-                    filterByDateRange(getStartOfCurrentMonth(), new Date(), "Month to Date");
-                    break;
-                case "2":
-                    filterByDateRange(getStartOfPreviousMonth(), getEndOfPreviousMonth(), "Previous Month");
-                    break;
-                case "3":
-                    filterByDateRange(getStartOfCurrentYear(), new Date(), "Year to Date");
-                    break;
-                case "4":
-                    filterByDateRange(getStartOfPreviousYear(), getEndOfPreviousYear(), "Previous Year");
-                    break;
-                case "5":
-                    System.out.print("Enter vendor name to search: ");
-                    String vendor = scanner.nextLine().trim().toLowerCase();
-                    searchByVendor(vendor);
-                    break;
-                case "0":
-                    return;
-                default:
-                    System.out.println("Invalid option. Try again.");
-            }
-        }
+        LinkedHashMap<String, Menu.MenuOption> options = new LinkedHashMap<>();
+        options.put("1", new Menu.MenuOption("Month to Date", () -> { filterByDateRange(getStartOfCurrentMonth(), new Date(), "Month to Date"); return false; }));
+        options.put("2", new Menu.MenuOption("Previous Month", () -> { filterByDateRange(getStartOfPreviousMonth(), getEndOfPreviousMonth(), "Previous Month"); return false; }));
+        options.put("3", new Menu.MenuOption("Year to Date", () -> { filterByDateRange(getStartOfCurrentYear(), new Date(), "Year to Date"); return false; }));
+        options.put("4", new Menu.MenuOption("Previous Year", () -> { filterByDateRange(getStartOfPreviousYear(), getEndOfPreviousYear(), "Previous Year"); return false; }));
+        options.put("5", new Menu.MenuOption("Search by Vendor", () -> { System.out.print("Enter vendor name to search: "); String vendor = scanner.nextLine().trim().toLowerCase(); searchByVendor(vendor); return false; }));
+        options.put("0", new Menu.MenuOption("Back - return to Ledger Menu", () -> true));
+        Menu.display("Reports Menu", options);
     }
 
     static Date getStartOfCurrentMonth() {

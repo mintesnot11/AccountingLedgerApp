@@ -15,7 +15,7 @@ public class Main {
         homescreen();
     }
 
-    //home screen
+    //home screen hh
     static void homescreen() {
         LinkedHashMap<String, Menu.MenuOption> options = new LinkedHashMap<>();
         options.put("D", new Menu.MenuOption("Add Deposit", () -> { addDeposit(); return false; }));
